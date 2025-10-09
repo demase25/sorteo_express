@@ -46,7 +46,6 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
     _numbersController.dispose();
     _minNumberController.dispose();
     _maxNumberController.dispose();
-    EffectsService.dispose();
     super.dispose();
   }
 
