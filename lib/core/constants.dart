@@ -5,7 +5,7 @@ class AppConstants {
   
   // Strings de la interfaz
   static const String homeTitle = 'Sorteo Express';
-  static const String homeSubtitle = 'Sorteos rápidos y fáciles';
+  static const String homeSubtitle = 'Tu sorteo, en un toque.';
   static const String sorteoTitle = 'Crear Sorteo';
   static const String resultTitle = 'Resultado';
   static const String historyTitle = 'Historial';
