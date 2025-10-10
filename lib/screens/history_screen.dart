@@ -103,7 +103,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 child: Icon(
-                  sorteo.type == 'nombres' ? Icons.person : Icons.numbers,
+                  sorteo.type == 'nombres' 
+                    ? Icons.person 
+                    : sorteo.type == 'numeros'
+                      ? Icons.numbers
+                      : Icons.confirmation_number,
                   color: Colors.white,
                 ),
               ),
@@ -403,6 +407,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   context,
                   AppRoutes.sorteo,
                   arguments: {'tipo': 'numeros'},
+                );
+              },
+            ),
+            
+            const SizedBox(height: AppConstants.smallPadding),
+            
+            // Opción Sorteo de Rifas
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.confirmation_number,
+                  color: Colors.orange,
+                ),
+              ),
+              title: const Text('Sorteo de Rifas'),
+              subtitle: const Text('Sortear números con nombres asignados'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.sorteo,
+                  arguments: {'tipo': 'rifas'},
                 );
               },
             ),

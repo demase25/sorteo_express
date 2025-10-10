@@ -45,6 +45,25 @@ class SorteoService {
     return numerosValidos[indiceGanador].trim();
   }
 
+  /// Realiza un sorteo de rifas (número - nombre)
+  static String sortearRifa(List<String> rifas) {
+    if (rifas.isEmpty) {
+      throw Exception('No hay rifas para sortear');
+    }
+    
+    // Filtrar rifas válidas (deben tener el formato número - nombre)
+    final rifasValidas = rifas
+        .where((r) => r.trim().isNotEmpty && r.contains('-'))
+        .toList();
+    
+    if (rifasValidas.isEmpty) {
+      throw Exception('No hay rifas válidas para sortear');
+    }
+    
+    final indiceGanador = _random.nextInt(rifasValidas.length);
+    return rifasValidas[indiceGanador].trim();
+  }
+
   /// Valida si un string es un número válido
   static bool _esNumeroValido(String numero) {
     try {
@@ -61,7 +80,6 @@ class SorteoService {
       throw Exception('Parámetros inválidos para generar números');
     }
     
-    final numeros = <String>[];
     final numerosGenerados = <int>{};
     
     while (numerosGenerados.length < cantidad && numerosGenerados.length < (max - min + 1)) {

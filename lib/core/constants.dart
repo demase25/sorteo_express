@@ -13,6 +13,7 @@ class AppConstants {
   // Mensajes
   static const String enterParticipants = 'Ingresa los participantes';
   static const String enterNumbers = 'Ingresa los números';
+  static const String enterRifas = 'Ingresa los números de rifa';
   static const String sortearButton = 'Sortear';
   static const String nuevoSorteoButton = 'Nuevo Sorteo';
   static const String verHistorialButton = 'Ver Historial';
@@ -23,7 +24,9 @@ class AppConstants {
   // Mensajes de error
   static const String errorEmptyParticipants = 'Debes ingresar al menos un participante';
   static const String errorEmptyNumbers = 'Debes ingresar al menos un número';
+  static const String errorEmptyRifas = 'Debes ingresar al menos un número de rifa';
   static const String errorInvalidNumber = 'Número inválido';
+  static const String errorInvalidRifaFormat = 'Formato inválido. Usa: Número - Nombre';
   static const String errorGeneric = 'Ha ocurrido un error';
   
   // Mensajes de éxito
@@ -35,7 +38,7 @@ class AppConstants {
   static const double smallPadding = 8.0;
   static const double largePadding = 24.0;
   static const double borderRadius = 12.0;
-  static const double buttonHeight = 48.0;
+  static const double buttonHeight = 56.0;
   
   // Límites
   static const int maxParticipants = 100;

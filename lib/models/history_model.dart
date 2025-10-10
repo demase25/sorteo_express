@@ -3,7 +3,7 @@ class HistoryModel {
   final String winner;
   final List<String> participants;
   final DateTime timestamp;
-  final String type; // 'nombres' o 'numeros'
+  final String type; // 'nombres', 'numeros' o 'rifas'
   final List<String>? numbers; // Solo para sorteos de números
 
   HistoryModel({
@@ -71,10 +71,26 @@ class HistoryModel {
     );
   }
 
+  // Constructor para sorteo de rifas
+  factory HistoryModel.fromRifasSorteo({
+    required String winner,
+    required List<String> participants,
+  }) {
+    return HistoryModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      winner: winner,
+      participants: participants,
+      timestamp: DateTime.now(),
+      type: 'rifas',
+    );
+  }
+
   // Método para obtener descripción del sorteo
   String get description {
     if (type == 'nombres') {
       return 'Sorteo de nombres entre ${participants.length} participantes';
+    } else if (type == 'rifas') {
+      return 'Sorteo de rifas entre ${participants.length} participantes';
     } else {
       return 'Sorteo de números entre ${participants.length} participantes';
     }

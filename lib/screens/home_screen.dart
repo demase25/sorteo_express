@@ -88,12 +88,19 @@ class HomeScreen extends StatelessWidget {
               icon: Icons.person,
               onPressed: () => _navigateToSorteo(context, 'nombres'),
             ),
-            const SizedBox(height: AppConstants.defaultPadding),
+            const SizedBox(height: AppConstants.smallPadding),
             
             CustomButton(
               text: 'Sorteo de Números',
               icon: Icons.numbers,
               onPressed: () => _navigateToSorteo(context, 'numeros'),
+            ),
+            const SizedBox(height: AppConstants.smallPadding),
+            
+            CustomButton(
+              text: 'Sorteo de Rifas',
+              icon: Icons.confirmation_number,
+              onPressed: () => _navigateToSorteo(context, 'rifas'),
             ),
             const SizedBox(height: AppConstants.defaultPadding),
             

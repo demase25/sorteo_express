@@ -24,6 +24,7 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
   final TextEditingController _numbersController = TextEditingController();
   final TextEditingController _minNumberController = TextEditingController();
   final TextEditingController _maxNumberController = TextEditingController();
+  final TextEditingController _rifasController = TextEditingController();
   late String _sorteoType;
   bool _isLoading = false;
   bool _useRange = true; // Por defecto usar rango
@@ -46,6 +47,7 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
     _numbersController.dispose();
     _minNumberController.dispose();
     _maxNumberController.dispose();
+    _rifasController.dispose();
     super.dispose();
   }
 
@@ -72,13 +74,21 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _sorteoType == 'nombres' ? Icons.person : Icons.numbers,
+                        _sorteoType == 'nombres' 
+                          ? Icons.person 
+                          : _sorteoType == 'numeros'
+                            ? Icons.numbers
+                            : Icons.confirmation_number,
                         color: Theme.of(context).colorScheme.primary,
                         size: 28,
                       ),
                       const SizedBox(width: AppConstants.smallPadding),
                       Text(
-                        _sorteoType == 'nombres' ? 'Sorteo de Nombres' : 'Sorteo de Números',
+                        _sorteoType == 'nombres' 
+                          ? 'Sorteo de Nombres' 
+                          : _sorteoType == 'numeros'
+                            ? 'Sorteo de Números'
+                            : 'Sorteo de Rifas',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
@@ -105,6 +115,47 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: AppConstants.defaultPadding),
+            ] else if (_sorteoType == 'rifas') ...[
+              // Campo de rifas (número - nombre)
+              InputField(
+                controller: _rifasController,
+                label: AppConstants.enterRifas,
+                hint: 'Ej:\n1 - Juan\n2 - María\n3 - Pedro',
+                maxLines: 8,
+                keyboardType: TextInputType.multiline,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return AppConstants.errorEmptyRifas;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: AppConstants.smallPadding),
+              Card(
+                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: AppConstants.smallPadding),
+                      Expanded(
+                        child: Text(
+                          'Formato: Número - Nombre\nEj: 1 - Juan, 25 - María',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: AppConstants.defaultPadding),
             ] else ...[
@@ -211,9 +262,9 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
                 InputField(
                   controller: _numbersController,
                   label: AppConstants.enterNumbers,
-                  hint: 'Ej: 1, 2, 3, 4, 5 (uno por línea)',
+                  hint: 'Ej: 1\n2\n3\n4\n5 (uno por línea)',
                   maxLines: 5,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.multiline,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppConstants.errorEmptyNumbers;
@@ -266,6 +317,15 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
             .where((e) => e.isNotEmpty)
             .toList();
         winner = SorteoService.sortearNombre(participants);
+      } else if (_sorteoType == 'rifas') {
+        // Sorteo de rifas
+        final rifas = _rifasController.text
+            .split('\n')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        winner = SorteoService.sortearRifa(rifas);
+        participants = rifas;
       } else {
         // Sorteo de números
         if (_useRange) {
@@ -327,6 +387,36 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
           ),
         );
         return false;
+      }
+    } else if (_sorteoType == 'rifas') {
+      // Validar rifas
+      if (_rifasController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(AppConstants.errorEmptyRifas),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+        return false;
+      }
+      
+      // Validar formato de rifas
+      final rifas = _rifasController.text
+          .split('\n')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+      
+      for (final rifa in rifas) {
+        if (!rifa.contains('-')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(AppConstants.errorInvalidRifaFormat),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+          return false;
+        }
       }
     } else {
       // Validar números para sorteo de números

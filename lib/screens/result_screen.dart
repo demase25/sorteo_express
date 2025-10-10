@@ -182,10 +182,25 @@ class _ResultScreenState extends State<ResultScreen>
     await EffectsService.vibrarBoton();
     
     try {
-      final historyModel = HistoryModel.fromNamesSorteo(
-        winner: widget.winner,
-        participants: widget.participants,
-      );
+      HistoryModel historyModel;
+      
+      if (widget.tipo == 'rifas') {
+        historyModel = HistoryModel.fromRifasSorteo(
+          winner: widget.winner,
+          participants: widget.participants,
+        );
+      } else if (widget.tipo == 'numeros') {
+        historyModel = HistoryModel.fromNumbersSorteo(
+          winner: widget.winner,
+          participants: widget.participants,
+          numbers: widget.participants,
+        );
+      } else {
+        historyModel = HistoryModel.fromNamesSorteo(
+          winner: widget.winner,
+          participants: widget.participants,
+        );
+      }
 
       await SorteoService.guardarSorteo(historyModel);
 
