@@ -1,7 +1,7 @@
 class AppConstants {
   // Información de la app
   static const String appName = 'Sorteo Express';
-  static const String appVersion = '1.0.1';
+  static const String appVersion = '1.0.2';
   
   // Strings de la interfaz
   static const String homeTitle = 'Sorteo Express';
