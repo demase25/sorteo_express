@@ -21,11 +21,11 @@ android {
 
     signingConfigs {
         create("release") {
-            // Usar la firma de debug para pruebas - CAMBIAR POR FIRMA REAL EN PRODUCCIÓN
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
+            // Keystore de producción para Sorteo Express
+            storeFile = file("sorteo-express-keystore.jks")
+            storePassword = "SorteoExpress2024!"
+            keyAlias = "sorteoexpress"
+            keyPassword = "SorteoExpress2024!"
         }
     }
 

@@ -78,5 +78,10 @@ app.*.map.json
 # Coverage
 coverage/
 
+# Keystore files (production)
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
