@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import '../core/constants.dart';
 import '../core/routes.dart';
-import '../widgets/custom_button.dart';
 import '../widgets/input_field.dart';
+import '../widgets/animated_background.dart';
+import '../widgets/sorteo_drum_animation.dart';
+import '../widgets/pulse_animation_button.dart';
+import '../widgets/animated_card.dart';
 import '../services/sorteo_service.dart';
 import '../services/effects_service.dart';
 
@@ -28,6 +31,9 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
   late String _sorteoType;
   bool _isLoading = false;
   bool _useRange = true; // Por defecto usar rango
+  bool _showDrumAnimation = false;
+  List<String> _animationItems = [];
+  final GlobalKey<AnimatedBackgroundState> _backgroundKey = GlobalKey();
 
   @override
   void initState() {
@@ -59,42 +65,51 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-            // Indicador del tipo de sorteo seleccionado
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _sorteoType == 'nombres' 
-                          ? Icons.person 
-                          : _sorteoType == 'numeros'
-                            ? Icons.numbers
-                            : Icons.confirmation_number,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 28,
-                      ),
-                      const SizedBox(width: AppConstants.smallPadding),
-                      Text(
-                        _sorteoType == 'nombres' 
-                          ? 'Sorteo de Nombres' 
-                          : _sorteoType == 'numeros'
-                            ? 'Sorteo de Números'
-                            : 'Sorteo de Rifas',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+      body: AnimatedBackground(
+        key: _backgroundKey,
+        primaryColor: Theme.of(context).colorScheme.primary,
+        secondaryColor: Theme.of(context).colorScheme.secondary,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+            // Indicador del tipo de sorteo seleccionado con animación
+            AnimatedCard(
+              delay: 0,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _sorteoType == 'nombres' 
+                            ? Icons.person 
+                            : _sorteoType == 'numeros'
+                              ? Icons.numbers
+                              : Icons.confirmation_number,
                           color: Theme.of(context).colorScheme.primary,
+                          size: 28,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: AppConstants.smallPadding),
+                        Text(
+                          _sorteoType == 'nombres' 
+                            ? 'Sorteo de Nombres' 
+                            : _sorteoType == 'numeros'
+                              ? 'Sorteo de Números'
+                              : 'Sorteo de Rifas',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -104,106 +119,118 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
             // Campos según el tipo de sorteo
             if (_sorteoType == 'nombres') ...[
               // Campo de participantes (solo para sorteo de nombres)
-              InputField(
-                controller: _participantsController,
-                label: AppConstants.enterParticipants,
-                hint: 'Ej: Juan, María, Pedro (uno por línea)',
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return AppConstants.errorEmptyParticipants;
-                  }
-                  return null;
-                },
+              AnimatedCard(
+                delay: 100,
+                child: InputField(
+                  controller: _participantsController,
+                  label: AppConstants.enterParticipants,
+                  hint: 'Ej: Juan, María, Pedro (uno por línea)',
+                  maxLines: 5,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return AppConstants.errorEmptyParticipants;
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: AppConstants.defaultPadding),
             ] else if (_sorteoType == 'rifas') ...[
               // Campo de rifas (número - nombre)
-              InputField(
-                controller: _rifasController,
-                label: AppConstants.enterRifas,
-                hint: 'Ej:\n1 - Juan\n2 - María\n3 - Pedro',
-                maxLines: 8,
-                keyboardType: TextInputType.multiline,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return AppConstants.errorEmptyRifas;
-                  }
-                  return null;
-                },
+              AnimatedCard(
+                delay: 100,
+                child: InputField(
+                  controller: _rifasController,
+                  label: AppConstants.enterRifas,
+                  hint: 'Ej:\n1 - Juan\n2 - María\n3 - Pedro',
+                  maxLines: 8,
+                  keyboardType: TextInputType.multiline,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return AppConstants.errorEmptyRifas;
+                    }
+                    return null;
+                  },
+                ),
               ),
               const SizedBox(height: AppConstants.smallPadding),
-              Card(
-                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: AppConstants.smallPadding),
-                      Expanded(
-                        child: Text(
-                          'Formato: Número - Nombre\nEj: 1 - Juan, 25 - María',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              AnimatedCard(
+                delay: 200,
+                child: Card(
+                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: AppConstants.smallPadding),
+                        Expanded(
+                          child: Text(
+                            'Formato: Número - Nombre\nEj: 1 - Juan, 25 - María',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: AppConstants.defaultPadding),
             ] else ...[
               // Opciones para sorteo de números
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Tipo de Sorteo de Números',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+              AnimatedCard(
+                delay: 100,
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tipo de Sorteo de Números',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: AppConstants.smallPadding),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: RadioListTile<bool>(
-                              title: const Text('Rango'),
-                              subtitle: const Text('Ej: del 1 al 100'),
-                              value: true,
-                              groupValue: _useRange,
-                              onChanged: (value) {
-                                setState(() {
-                                  _useRange = value!;
-                                });
-                              },
+                        const SizedBox(height: AppConstants.smallPadding),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: RadioListTile<bool>(
+                                title: const Text('Rango'),
+                                subtitle: const Text('Ej: del 1 al 100'),
+                                value: true,
+                                groupValue: _useRange,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _useRange = value!;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: RadioListTile<bool>(
-                              title: const Text('Lista'),
-                              subtitle: const Text('Ej: 5, 10, 15, 20'),
-                              value: false,
-                              groupValue: _useRange,
-                              onChanged: (value) {
-                                setState(() {
-                                  _useRange = value!;
-                                });
-                              },
+                            Expanded(
+                              child: RadioListTile<bool>(
+                                title: const Text('Lista'),
+                                subtitle: const Text('Ej: 5, 10, 15, 20'),
+                                value: false,
+                                groupValue: _useRange,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _useRange = value!;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -212,65 +239,71 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
               // Campos según el tipo seleccionado
               if (_useRange) ...[
                 // Campos de rango
-                Row(
-                  children: [
-                    Expanded(
-                      child: InputField(
-                        controller: _minNumberController,
-                        label: 'Desde',
-                        hint: 'Ej: 1',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Ingresa el número mínimo';
-                          }
-                          final num = int.tryParse(value);
-                          if (num == null) {
-                            return 'Número inválido';
-                          }
-                          return null;
-                        },
+                AnimatedCard(
+                  delay: 200,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          controller: _minNumberController,
+                          label: 'Desde',
+                          hint: 'Ej: 1',
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Ingresa el número mínimo';
+                            }
+                            final num = int.tryParse(value);
+                            if (num == null) {
+                              return 'Número inválido';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppConstants.smallPadding),
-                    Expanded(
-                      child: InputField(
-                        controller: _maxNumberController,
-                        label: 'Hasta',
-                        hint: 'Ej: 100',
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Ingresa el número máximo';
-                          }
-                          final num = int.tryParse(value);
-                          if (num == null) {
-                            return 'Número inválido';
-                          }
-                          final minNum = int.tryParse(_minNumberController.text);
-                          if (minNum != null && num <= minNum) {
-                            return 'Debe ser mayor al mínimo';
-                          }
-                          return null;
-                        },
+                      const SizedBox(width: AppConstants.smallPadding),
+                      Expanded(
+                        child: InputField(
+                          controller: _maxNumberController,
+                          label: 'Hasta',
+                          hint: 'Ej: 100',
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Ingresa el número máximo';
+                            }
+                            final num = int.tryParse(value);
+                            if (num == null) {
+                              return 'Número inválido';
+                            }
+                            final minNum = int.tryParse(_minNumberController.text);
+                            if (minNum != null && num <= minNum) {
+                              return 'Debe ser mayor al mínimo';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ] else ...[
                 // Campo de lista de números
-                InputField(
-                  controller: _numbersController,
-                  label: AppConstants.enterNumbers,
-                  hint: 'Ej: 1\n2\n3\n4\n5 (uno por línea)',
-                  maxLines: 5,
-                  keyboardType: TextInputType.multiline,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppConstants.errorEmptyNumbers;
-                    }
-                    return null;
-                  },
+                AnimatedCard(
+                  delay: 200,
+                  child: InputField(
+                    controller: _numbersController,
+                    label: AppConstants.enterNumbers,
+                    hint: 'Ej: 1\n2\n3\n4\n5 (uno por línea)',
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return AppConstants.errorEmptyNumbers;
+                      }
+                      return null;
+                    },
+                  ),
                 ),
               ],
               const SizedBox(height: AppConstants.defaultPadding),
@@ -278,16 +311,35 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
             
             const SizedBox(height: AppConstants.largePadding),
             
-            // Botón de sortear
-            CustomButton(
-              text: AppConstants.sortearButton,
-              icon: Icons.shuffle,
-              onPressed: _isLoading ? null : _realizarSorteo,
-              isLoading: _isLoading,
+            // Botón de sortear con animación de pulso
+            Center(
+              child: PulseAnimationButton(
+                text: AppConstants.sortearButton,
+                icon: Icons.shuffle,
+                onPressed: _realizarSorteo,
+                isLoading: _isLoading,
+              ),
             ),
             const SizedBox(height: AppConstants.largePadding),
-            ],
-          ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Animación del tambor giratorio
+            if (_showDrumAnimation)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.7),
+                  child: Center(
+                    child: SorteoDrumAnimation(
+                      items: _animationItems,
+                      isAnimating: _isLoading,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -298,13 +350,56 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
 
     await EffectsService.vibrarBoton();
     
+    // Agregar chispas en la posición del botón
+    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final size = renderBox.size;
+      _backgroundKey.currentState?.addSparkles(
+        Offset(size.width / 2, size.height - 100),
+      );
+    }
+    
+    // Preparar los items para la animación
+    List<String> animationItems = [];
+    if (_sorteoType == 'nombres') {
+      animationItems = _participantsController.text
+          .split('\n')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    } else if (_sorteoType == 'rifas') {
+      animationItems = _rifasController.text
+          .split('\n')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    } else {
+      if (_useRange) {
+        final minNum = int.parse(_minNumberController.text);
+        final maxNum = int.parse(_maxNumberController.text);
+        // Generar algunos números de muestra para la animación
+        final sampleSize = min(20, maxNum - minNum + 1);
+        for (int i = 0; i < sampleSize; i++) {
+          animationItems.add((minNum + Random().nextInt(maxNum - minNum + 1)).toString());
+        }
+      } else {
+        animationItems = _numbersController.text
+            .split('\n')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+      }
+    }
+    
     setState(() {
       _isLoading = true;
+      _showDrumAnimation = true;
+      _animationItems = animationItems;
     });
 
     try {
-      // Simular delay para la animación
-      await Future.delayed(const Duration(milliseconds: 1500));
+      // Animación de sorteo más larga para mayor suspenso
+      await Future.delayed(const Duration(milliseconds: 2500));
 
       String winner;
       List<String> participants = [];
@@ -371,6 +466,7 @@ class _SorteoScreenState extends State<SorteoScreen> with TickerProviderStateMix
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _showDrumAnimation = false;
         });
       }
     }

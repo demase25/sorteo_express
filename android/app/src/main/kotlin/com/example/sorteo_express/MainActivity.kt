@@ -1,4 +1,4 @@
-package com.example.sorteo_express
+package com.sorteoexpress.app
 
 import io.flutter.embedding.android.FlutterActivity
 
