@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../core/constants.dart';
 import '../core/routes.dart';
+import '../core/theme.dart';
 import '../models/history_model.dart';
 import '../services/sorteo_service.dart';
 import '../services/share_service.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/animated_background.dart';
+import '../widgets/history_card.dart';
+import '../widgets/animated_menu_button.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -38,11 +42,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _sorteos.isEmpty
-              ? _buildEmptyState()
-              : _buildHistorialList(),
+      body: AnimatedBackground(
+        primaryColor: AppTheme.primaryColor,
+        secondaryColor: AppTheme.secondaryColor,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : _sorteos.isEmpty
+                ? _buildEmptyState()
+                : _buildHistorialList(),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarOpcionesSorteo,
         child: const Icon(Icons.add),
@@ -57,31 +69,114 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.history,
-              size: 120,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+            // Icono animado
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Transform.rotate(
+                    angle: (1 - value) * 3.14,
+                    child: child,
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 4,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.history,
+                  size: 80,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
             const SizedBox(height: AppConstants.largePadding),
-            Text(
-              'No hay sorteos guardados',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            
+            // Título animado
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: child,
+                  ),
+                );
+              },
+              child: Text(
+                'No hay sorteos guardados',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: const Color(0xFF1A1A1A).withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: AppConstants.smallPadding),
-            Text(
-              'Crea tu primer sorteo para verlo aquí',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            
+            // Subtítulo animado
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: child,
+                  ),
+                );
+              },
+              child: Text(
+                'Crea tu primer sorteo para verlo aquí',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.white.withOpacity(0.9),
+                      fontWeight: FontWeight.w500,
+                    ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppConstants.largePadding),
-            CustomButton(
+            
+            // Botón animado
+            AnimatedMenuButton(
               text: 'Crear Sorteo',
               icon: Icons.add,
               onPressed: _mostrarOpcionesSorteo,
+              index: 0,
+              gradientStart: AppTheme.primaryColor,
+              gradientEnd: AppTheme.secondaryColor,
             ),
           ],
         ),
@@ -92,75 +187,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget _buildHistorialList() {
     return RefreshIndicator(
       onRefresh: _cargarHistorial,
+      color: AppTheme.primaryColor,
       child: ListView.builder(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         itemCount: _sorteos.length,
+        physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           final sorteo = _sorteos[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: AppConstants.smallPadding),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                child: Icon(
-                  sorteo.type == 'nombres' 
-                    ? Icons.person 
-                    : sorteo.type == 'numeros'
-                      ? Icons.numbers
-                      : Icons.confirmation_number,
-                  color: Colors.white,
-                ),
-              ),
-              title: Text(
-                sorteo.winner,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(sorteo.description),
-                  Text(
-                    sorteo.formattedDate,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              trailing: PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'eliminar') {
-                    _eliminarSorteo(sorteo);
-                  } else if (value == 'compartir') {
-                    _compartirSorteo(sorteo);
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'compartir',
-                    child: Row(
-                      children: [
-                        Icon(Icons.share),
-                        SizedBox(width: 8),
-                        Text('Compartir'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'eliminar',
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text('Eliminar', style: TextStyle(color: Colors.red)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              onTap: () => _mostrarDetallesSorteo(sorteo),
-            ),
+          return HistoryCard(
+            sorteo: sorteo,
+            index: index,
+            onTap: () => _mostrarDetallesSorteo(sorteo),
+            onMenuSelected: (value) {
+              if (value == 'eliminar') {
+                _eliminarSorteo(sorteo);
+              } else if (value == 'compartir') {
+                _compartirSorteo(sorteo);
+              }
+            },
           );
         },
       ),

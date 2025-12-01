@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../core/constants.dart';
 import '../core/routes.dart';
+import '../core/theme.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/result_card.dart';
+import '../widgets/animated_background.dart';
+import '../widgets/animated_menu_button.dart';
 import '../models/history_model.dart';
 import '../services/sorteo_service.dart';
 import '../services/share_service.dart';
@@ -96,84 +99,208 @@ class _ResultScreenState extends State<ResultScreen>
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          // Confetti de fondo
-          EffectsService.crearConfettiWidget(
-            size: MediaQuery.of(context).size,
-            alignment: Alignment.topCenter,
-          ),
-          
-          // Confetti con estrellas
-          EffectsService.crearConfettiEstrella(
-            size: MediaQuery.of(context).size,
-            alignment: Alignment.topCenter,
-          ),
-          
-          // Contenido principal
-          Padding(
-            padding: const EdgeInsets.all(AppConstants.defaultPadding),
-            child: Column(
-              children: [
-                // Animación del resultado
-                Expanded(
-                  child: Center(
-                    child: AnimatedBuilder(
-                      animation: _animationController,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _scaleAnimation.value,
-                          child: Opacity(
-                            opacity: _fadeAnimation.value,
-                            child: ResultCard(
-                              winner: widget.winner,
-                              participants: widget.participants,
-                              timestamp: widget.timestamp,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
+      body: AnimatedBackground(
+        primaryColor: AppTheme.secondaryColor,
+        secondaryColor: AppTheme.accentColor,
+        child: Stack(
+          children: [
+            // Confetti de fondo
+            EffectsService.crearConfettiWidget(
+              size: MediaQuery.of(context).size,
+              alignment: Alignment.topCenter,
+            ),
             
-                // Botones de acción
-                Column(
+            // Confetti con estrellas
+            EffectsService.crearConfettiEstrella(
+              size: MediaQuery.of(context).size,
+              alignment: Alignment.topCenter,
+            ),
+            
+            // Contenido principal
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.defaultPadding),
+                child: Column(
                   children: [
-                    CustomButton(
+                    // Animación del resultado con nuevo diseño
+                    Expanded(
+                      child: Center(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Icono de trofeo animado
+                              AnimatedBuilder(
+                                animation: _animationController,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: _scaleAnimation.value,
+                                    child: Opacity(
+                                      opacity: _fadeAnimation.value,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: AppTheme.secondaryColor,
+                                            width: 4,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppTheme.secondaryColor.withOpacity(0.5),
+                                              blurRadius: 30,
+                                              spreadRadius: 5,
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.emoji_events,
+                                          size: 80,
+                                          color: AppTheme.secondaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 30),
+                              
+                              // Texto "GANADOR"
+                              AnimatedBuilder(
+                                animation: _animationController,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: _scaleAnimation.value,
+                                    child: Opacity(
+                                      opacity: _fadeAnimation.value,
+                                      child: const Text(
+                                        '¡GANADOR!',
+                                        style: TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 4,
+                                          shadows: [
+                                            Shadow(
+                                              color: Color(0xFF1A1A1A),
+                                              blurRadius: 10,
+                                              offset: Offset(3, 3),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 30),
+                              
+                              // Número o nombre ganador - SIEMPRE VISIBLE
+                              AnimatedBuilder(
+                                animation: _animationController,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: _scaleAnimation.value,
+                                    child: Opacity(
+                                      opacity: _fadeAnimation.value,
+                                      child: Container(
+                                        constraints: const BoxConstraints(
+                                          minWidth: 250,
+                                          maxWidth: 500,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 40,
+                                          vertical: 30,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white, // Blanco sólido
+                                          borderRadius: BorderRadius.circular(30),
+                                          border: Border.all(
+                                            color: const Color(0xFF1A1A1A),
+                                            width: 5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFF1A1A1A).withOpacity(0.6),
+                                              blurRadius: 25,
+                                              spreadRadius: 5,
+                                              offset: const Offset(0, 8),
+                                            ),
+                                            BoxShadow(
+                                              color: AppTheme.secondaryColor.withOpacity(0.8),
+                                              blurRadius: 40,
+                                              spreadRadius: -5,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Text(
+                                          widget.winner,
+                                          style: const TextStyle(
+                                            fontSize: 56, // GRANDE
+                                            fontWeight: FontWeight.w900, // MUY BOLD
+                                            color: Color(0xFF1A1A1A), // NEGRO
+                                            letterSpacing: 3,
+                                            height: 1.2,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 3,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                
+                    const SizedBox(height: AppConstants.defaultPadding),
+                    
+                    // Botones de acción con estilo mejorado
+                    AnimatedMenuButton(
                       text: AppConstants.guardarButton,
                       icon: Icons.save,
                       onPressed: _guardarSorteo,
+                      index: 0,
+                      gradientStart: AppTheme.primaryColor,
+                      gradientEnd: AppTheme.secondaryColor,
                     ),
-                    const SizedBox(height: AppConstants.smallPadding),
+                    const SizedBox(height: AppConstants.defaultPadding),
                     
                     Row(
                       children: [
                         Expanded(
-                          child: CustomButton(
+                          child: AnimatedMenuButton(
                             text: 'Nuevo',
                             icon: Icons.refresh,
                             onPressed: () => AppRoutes.navigateToHome(context),
                             isSecondary: true,
+                            index: 1,
                           ),
                         ),
-                        const SizedBox(width: AppConstants.smallPadding),
+                        const SizedBox(width: AppConstants.defaultPadding),
                         Expanded(
-                          child: CustomButton(
+                          child: AnimatedMenuButton(
                             text: 'Historial',
                             icon: Icons.history,
                             onPressed: () => AppRoutes.navigateToHistory(context),
                             isSecondary: true,
+                            index: 2,
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: AppConstants.smallPadding),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

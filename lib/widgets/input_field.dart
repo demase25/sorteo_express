@@ -38,12 +38,26 @@ class InputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 18,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.95),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 18,
+            ),
           ),
         ),
         const SizedBox(height: AppConstants.smallPadding),
@@ -58,34 +72,41 @@ class InputField extends StatelessWidget {
           focusNode: focusNode,
           onTap: onTap,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 16,
+            color: const Color(0xFF1A1A1A), // Color oscuro fijo para mejor visibilidad
+            fontSize: 18, // Aumentado para mejor lectura
+            fontWeight: FontWeight.w600, // Más peso para mayor contraste
           ),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: TextStyle(
+              color: const Color(0xFF757575),
+              fontSize: 16,
+            ),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             counterText: maxLength != null ? null : '',
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
+            fillColor: Colors.white, // Fondo blanco sólido para máximo contraste
             isDense: true,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
+              borderSide: const BorderSide(
+                color: Color(0xFF1A1A1A), // Borde oscuro para contraste
+                width: 2,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline,
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                width: 2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadius),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary,
-                width: 2,
+                width: 3,
               ),
             ),
             errorBorder: OutlineInputBorder(
